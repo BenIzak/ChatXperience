@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  database:
+    ports:
+      - "3307:3306"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ''
+    ports:
+      - "8080:80"
+    depends_on:
+      - database
+
+  # ... autres services
+
+###> symfony/mercure-bundle ###
+  mercure:
+    ports:
+      - "3000:80"
+###< symfony/mercure-bundle ###

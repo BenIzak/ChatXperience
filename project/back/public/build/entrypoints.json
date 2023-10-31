@@ -1,0 +1,18 @@
+{
+  "isProd": false,
+  "viteServer": {
+    "origin": "http://[::1]:5173",
+    "base": "/build/"
+  },
+  "entryPoints": {
+    "app": {
+      "js": [
+        {
+          "path": "http://[::1]:5173/build/assets/main.tsx",
+          "hash": null
+        }
+      ]
+    }
+  },
+  "legacy": false
+}

@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "dev": "npm run check-types && vite",
+    "build": "tsc && vite build"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/react": "^18.2.31",
+    "@types/react-dom": "^18.2.14",
+    "typescript": "^5.2.2",
+    "vite": "^4.0",
+    "vite-plugin-symfony": "^4.0"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^4.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "vite-plugin-checker": "^0.6.2"
+  }
+}
