@@ -1,3 +1,70 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  min-width: 360px;
+}
+
+#root {
+  height: 100vh;
+  width: 100%;
+
+  overflow: hidden;
+}
+
+@layer base {
+  :root {
+    /* Couleurs principales */
+    --engineering-orange: #ba2d0b;
+    --honeydew: #d5f2e3;
+    --cambridge-blue: #73ba9b;
+    --british-racing-green: #003e1f;
+    --night: #01110a;
+
+    /* Variantes pour l'accentuation (orange) */
+    --engineering-orange-light: #e2683e; /* Variante plus claire */
+    --engineering-orange-dark: #7c1d08; /* Variante plus sombre */
+    --engineering-orange-darker: #4e1205; /* Variante encore plus sombre */
+  }
+}
+
+@layer components {
+  /* Tailles de titre */
+  .title-h1 {
+    @apply text-3xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight;
+  }
+
+  .title-h2 {
+    @apply text-xl sm:text-3xl md:text-3xl lg:text-4xl font-bold tracking-tight;
+  }
+
+  /* Taille de paragraphe */
+  .paragraph {
+    @apply text-base sm:text-lg;
+  }
+
+  /* Tailles de légende (caption) */
+  .caption-primary {
+    @apply text-xs sm:text-sm;
+  }
+
+  .caption-secondary {
+    @apply text-xs sm:text-sm;
+  }
+
+  /* bouton */
+
+  .btn-primary {
+    @apply bg-primary border-primary border rounded-md inline-flex items-center justify-center py-3 px-7 text-center text-base font-medium text-white hover:bg-[#1B44C8] hover:border-[#1B44C8] disabled:bg-gray-3 disabled:border-gray-3 disabled:text-dark-5 active:bg-[#1B44C8] active:border-[#1B44C8];
+  }
+}
