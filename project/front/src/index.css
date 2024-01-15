@@ -22,22 +22,6 @@ body {
   overflow: hidden;
 }
 
-@layer base {
-  :root {
-    /* Couleurs principales */
-    --engineering-orange: #ba2d0b;
-    --honeydew: #d5f2e3;
-    --cambridge-blue: #73ba9b;
-    --british-racing-green: #003e1f;
-    --night: #01110a;
-
-    /* Variantes pour l'accentuation (orange) */
-    --engineering-orange-light: #e2683e; /* Variante plus claire */
-    --engineering-orange-dark: #7c1d08; /* Variante plus sombre */
-    --engineering-orange-darker: #4e1205; /* Variante encore plus sombre */
-  }
-}
-
 @layer components {
   /* Tailles de titre */
   .title-h1 {
