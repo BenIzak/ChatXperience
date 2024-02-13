@@ -14,7 +14,7 @@ services:
     image: 'mariadb'
     restart: always
     environment:
-      MYSQL_DATABASE: data
+      MYSQL_DATABASE: xperiencedata
       MYSQL_ROOT_PASSWORD: ${DB_PASS}
     volumes:
       - ./etc/database.sql:/docker-entrypoint-initdb.d/dump.sql

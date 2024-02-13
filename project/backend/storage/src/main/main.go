@@ -7,6 +7,7 @@ import (
 
 	"github.com/BenIzak/ChatXperience/project/src/entity"
 	"github.com/BenIzak/ChatXperience/project/src/handler"
+	"github.com/BenIzak/ChatXperience/project/src/ws"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -37,6 +38,7 @@ func main() {
 	reference.Group = &entity.Group{}
 	reference.UsersGroup = &entity.UsersGroup{}
 	reference.Message = &entity.Message{}
+	reference.CreateRoomReq = &ws.CreateRoomReq{}
 
 	mux := handler.NewHandler(db, reference)
 

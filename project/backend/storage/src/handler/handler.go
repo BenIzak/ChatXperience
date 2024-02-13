@@ -6,13 +6,14 @@ import (
 
 	"github.com/BenIzak/ChatXperience/project/src/entity"
 	myhttp "github.com/BenIzak/ChatXperience/project/src/http"
+	"github.com/BenIzak/ChatXperience/project/src/ws"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 )
 
-func NewHandler(db *sql.DB, ref entity.Reference) *HandlerReference {
+func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 
 	handlers := &HandlerReference{
 		chi.NewRouter(),
@@ -54,7 +55,7 @@ func NewHandler(db *sql.DB, ref entity.Reference) *HandlerReference {
 	handlers.Post("/message", myhttp.CreateMessageEndpoint(db))
 	handlers.Get("/messages/{groupID:[0-9+]}", myhttp.GetMessagesByGroupIDEndpoint(db))
 	handlers.Delete("/message", myhttp.DeleteMessageByIDEndpoint(db))
-
+	handlers.Post("/ws/createRoom", ws.CreateRoomReq)
 	return handlers
 }
 
