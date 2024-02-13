@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    @apply h-screen w-full overflow-hidden bg-wp-white font-sans;
+}
+
+#root {
+    height: 100vh;
+    width: 100%;
+
+    overflow: hidden;
+}
+
+@layer components {
+    /* Tailles de titre */
+    .title-h1 {
+        @apply text-3xl font-bold tracking-tight sm:text-3xl md:text-4xl lg:text-5xl;
+    }
+
+    .title-h2 {
+        @apply text-xl font-bold tracking-tight sm:text-3xl md:text-3xl lg:text-4xl;
+    }
+
+    /* Taille de paragraphe */
+    .paragraph {
+        @apply text-base sm:text-lg;
+    }
+
+    /* Tailles de légende (caption) */
+    .caption-primary {
+        @apply text-xs sm:text-sm;
+    }
+
+    .caption-secondary {
+        @apply text-xs sm:text-sm;
+    }
+
+    /* bouton */
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center rounded-md border border-primary bg-primary px-7 py-3 text-center text-base font-medium text-white hover:border-[#1B44C8] hover:bg-[#1B44C8] active:border-[#1B44C8] active:bg-[#1B44C8] disabled:border-gray-3 disabled:bg-gray-3 disabled:text-dark-5;
+    }
+}
