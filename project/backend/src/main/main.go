@@ -38,9 +38,11 @@ func main() {
 	reference.Group = &entity.Group{}
 	reference.UsersGroup = &entity.UsersGroup{}
 	reference.Message = &entity.Message{}
-	reference.CreateRoomReq = &ws.CreateRoomReq{}
 
-	mux := handler.NewHandler(db, reference)
+	hub := ws.NewHub()
+	go hub.Run()
+
+	mux := handler.NewHandler(db, reference, hub)
 
 	err = http.ListenAndServe(":3000", mux)
 	if err != nil {

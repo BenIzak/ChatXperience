@@ -1,4 +1,4 @@
-module backend
+module github.com/BenIzak/ChatXperience/project
 
 go 1.20
 

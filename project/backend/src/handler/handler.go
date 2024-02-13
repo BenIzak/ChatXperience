@@ -13,7 +13,7 @@ import (
 	"github.com/go-chi/cors"
 )
 
-func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
+func NewHandler(db *sql.DB, ref entity.Reference, hub *ws.Hub) http.Handler {
 
 	handlers := &HandlerReference{
 		chi.NewRouter(),
@@ -55,7 +55,27 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 	handlers.Post("/message", myhttp.CreateMessageEndpoint(db))
 	handlers.Get("/messages/{groupID:[0-9+]}", myhttp.GetMessagesByGroupIDEndpoint(db))
 	handlers.Delete("/message", myhttp.DeleteMessageByIDEndpoint(db))
-	handlers.Post("/ws/createRoom", ws.CreateRoomReq)
+
+	handlers.HandleFunc("/ws/createRoom", func(w http.ResponseWriter, r *http.Request) {
+		wsHandler := &ws.Handler{}
+		wsHandler.CreateRoom(w, r, hub)
+	})
+
+	handlers.HandleFunc("/ws/joinRoom/{roomId}", func(w http.ResponseWriter, r *http.Request) {
+		wsHandler := &ws.Handler{}
+		wsHandler.JoinRoom(w, r, hub)
+	})
+
+	handlers.HandleFunc("/ws/getRooms", func(w http.ResponseWriter, r *http.Request) {
+		wsHandler := &ws.Handler{}
+		wsHandler.GetRooms(w, r, hub)
+	})
+
+	handlers.HandleFunc("/ws/getClients/{roomId}", func(w http.ResponseWriter, r *http.Request) {
+		wsHandler := &ws.Handler{}
+		wsHandler.GetClients(w, r, hub)
+	})
+
 	return handlers
 }
 
