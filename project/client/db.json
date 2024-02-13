@@ -1,0 +1,368 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "email": "olivier@mail.Acom",
+      "password": "bestPassw0rd",
+      "firstname": "Olivier",
+      "lastname": "Monge",
+      "age": 32,
+      "jwt": "test_token_1"
+    },
+    {
+      "id": "2",
+      "email": "samuel@mail.com",
+      "password": "bestPassw0rd",
+      "firstname": "Samuel",
+      "lastname": "Leroy",
+      "age": 28,
+      "jwt": "test_token_2"
+    },
+    {
+      "id": "3",
+      "email": "john@mail.com",
+      "password": "bestPassw0rd",
+      "firstname": "John",
+      "lastname": "Doe",
+      "age": 42,
+      "jwt": "test_token_3"
+    },
+    {
+      "id": "4",
+      "email": "laura@mail.com",
+      "password": "bestPassw0rd",
+      "firstname": "Laura",
+      "lastname": "Smith",
+      "age": 18,
+      "jwt": "test_token_4"
+    }
+  ],
+  "Chats": [
+    {
+      "id": "1",
+      "name": "Chat with Olivier",
+      "type": "private",
+      "lastMessageDate": "2024-01-20T10:45:00Z",
+      "creatorId": "1",
+      "participantsId": [
+        "1",
+        "2"
+      ],
+      "messages": [
+        {
+          "id": "14354",
+          "content": "Salut, ça va ?",
+          "senderName": "Olivier",
+          "senderId": "1",
+          "chatId": "1",
+          "timestamp": "2024-01-20T11:00:00Z"
+        },
+        {
+          "id": "6745675",
+          "content": "Oui, et toi ?",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-01-20T11:05:00Z"
+        },
+        {
+          "id": "745675",
+          "content": "Quoi de neuf aujourd'hui ?",
+          "senderName": "Olivier",
+          "senderId": "1",
+          "chatId": "1",
+          "timestamp": "2024-01-20T11:10:00Z"
+        },
+        {
+          "id": "3456",
+          "content": "Pas grand-chose, juste du travail.",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-01-20T11:15:00Z"
+        },
+        {
+          "id": "3657657",
+          "content": "hehehe",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-01-21T23:24:54.078Z"
+        },
+        {
+          "id": "37675776",
+          "content": "non",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-01-21T23:25:04.501Z"
+        },
+        {
+          "id": "98789",
+          "content": "bien et toi",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-01-21T23:25:26.917Z"
+        },
+        {
+          "id": "1707112286851",
+          "content": "non",
+          "senderName": "none",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-02-05T05:51:26.851Z"
+        },
+        {
+          "id": "1707113871200",
+          "content": "",
+          "senderName": "none",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-02-05T06:17:51.200Z"
+        },
+        {
+          "id": "1707576461663",
+          "content": "fv,folvkflvfkvfglkbvf",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-02-10T14:47:41.663Z"
+        },
+        {
+          "id": "1707596917850",
+          "content": "  ",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "1",
+          "timestamp": "2024-02-10T20:28:37.850Z"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Chat with Samuel",
+      "type": "private",
+      "lastMessageDate": "2024-01-19T15:30:00Z",
+      "creatorId": "3",
+      "participantsId": [
+        "3",
+        "2"
+      ],
+      "messages": [
+        {
+          "id": "356789",
+          "content": "On se rejoint pour déjeuner ?",
+          "senderName": "John",
+          "senderId": "3",
+          "chatId": "2",
+          "timestamp": "2024-01-19T12:00:00Z"
+        },
+        {
+          "id": "567995",
+          "content": "Bonne idée, je suis libre vers 13h.",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "2",
+          "timestamp": "2024-01-19T12:05:00Z"
+        },
+        {
+          "id": "3657890987",
+          "content": "Parfait, à tout à l'heure alors.",
+          "senderName": "John",
+          "senderId": "3",
+          "chatId": "2",
+          "timestamp": "2024-01-19T12:10:00Z"
+        },
+        {
+          "id": "456789",
+          "content": "A plus tard.",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "2",
+          "timestamp": "2024-01-19T12:15:00Z"
+        },
+        {
+          "id": "83838",
+          "content": "yes",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "2",
+          "timestamp": "2024-01-21T23:32:39.243Z"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Groupe des Développeurs",
+      "type": "group",
+      "lastMessageDate": "2024-01-18T09:00:00Z",
+      "creatorId": "2",
+      "participantsId": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "messages": [
+        {
+          "id": "75675673",
+          "content": "Salut tout le monde !",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-01-18T09:00:00Z"
+        },
+        {
+          "id": "45657",
+          "content": "Hello Samuel !",
+          "senderName": "Olivier",
+          "senderId": "1",
+          "chatId": "3",
+          "timestamp": "2024-01-18T09:05:00Z"
+        },
+        {
+          "id": "3567776",
+          "content": "Bonjour à tous.",
+          "senderName": "Laura",
+          "senderId": "4",
+          "chatId": "3",
+          "timestamp": "2024-01-18T09:10:00Z"
+        },
+        {
+          "id": "37676533",
+          "content": "Hey, comment ça va ?",
+          "senderName": "John",
+          "senderId": "3",
+          "chatId": "3",
+          "timestamp": "2024-01-18T09:15:00Z"
+        },
+        {
+          "id": "7365765737737",
+          "content": "hehehe",
+          "senderName": "Samuel",
+          "senderId": 2,
+          "chatId": "3",
+          "timestamp": "2024-01-21T23:32:03.096Z"
+        },
+        {
+          "id": "10155",
+          "content": "top ca marche !!",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-01-21T23:32:20.306Z"
+        },
+        {
+          "id": "273646465",
+          "content": "yes",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-01-21T23:32:29.852Z"
+        },
+        {
+          "id": "1707112341037",
+          "content": "hehe",
+          "senderName": "none",
+          "senderId": "4",
+          "chatId": "3",
+          "timestamp": "2024-02-05T05:52:21.037Z"
+        },
+        {
+          "id": "1707112783094",
+          "content": "hehe",
+          "senderName": "none",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-02-05T05:59:43.094Z"
+        },
+        {
+          "id": "1707562029776",
+          "content": "hehe",
+          "senderName": "none",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-02-10T10:47:09.776Z"
+        },
+        {
+          "id": "1707563612674",
+          "content": "",
+          "senderName": "none",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-02-10T11:13:32.674Z"
+        },
+        {
+          "id": "1707577072024",
+          "content": "peut être",
+          "senderName": "Laura",
+          "senderId": "4",
+          "chatId": "3",
+          "timestamp": "2024-02-10T14:57:52.024Z"
+        },
+        {
+          "id": "1707595452289",
+          "content": "test",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-02-10T20:04:12.289Z"
+        },
+        {
+          "id": "1707596910705",
+          "content": "",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "3",
+          "timestamp": "2024-02-10T20:28:30.705Z"
+        }
+      ]
+    },
+    {
+      "id": "152",
+      "name": "test group",
+      "type": "group",
+      "lastMessageDate": "2024-02-10T20:59:38.606Z",
+      "creatorId": "2",
+      "participantsId": [
+        "3",
+        "4"
+      ],
+      "messages": [
+        {
+          "id": "1707598825605",
+          "content": "hehe",
+          "senderName": "Samuel",
+          "senderId": "2",
+          "chatId": "152",
+          "timestamp": "2024-02-10T21:00:25.605Z"
+        }
+      ]
+    },
+    {
+      "id": "651",
+      "name": "le groupe de la vérité",
+      "type": "group",
+      "lastMessageDate": "2024-02-13T10:09:55.747Z",
+      "creatorId": "2",
+      "participantsId": [
+        "1",
+        "4"
+      ],
+      "messages": []
+    },
+    {
+      "id": "758",
+      "name": "le groupe de la vérité",
+      "type": "group",
+      "lastMessageDate": "2024-02-13T10:09:58.371Z",
+      "creatorId": "2",
+      "participantsId": [
+        "1",
+        "4"
+      ],
+      "messages": []
+    }
+  ]
+}
