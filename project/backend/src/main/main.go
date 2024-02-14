@@ -7,7 +7,6 @@ import (
 
 	"github.com/BenIzak/ChatXperience/project/src/entity"
 	"github.com/BenIzak/ChatXperience/project/src/handler"
-	"github.com/BenIzak/ChatXperience/project/src/ws"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -39,15 +38,11 @@ func main() {
 	reference.UsersGroup = &entity.UsersGroup{}
 	reference.Message = &entity.Message{}
 
-	hub := ws.NewHub()
-	go hub.Run()
-
-	mux := handler.NewHandler(db, reference, hub)
+	mux := handler.NewHandler(db, reference)
 
 	err = http.ListenAndServe(":3000", mux)
 	if err != nil {
 		log.Fatalf("could not listen on port 3000: %v", err)
 		return
 	}
-
 }
