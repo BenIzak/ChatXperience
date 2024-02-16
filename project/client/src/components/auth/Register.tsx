@@ -2,8 +2,10 @@ import CompanyLogo from '@assets/icon/ChatXperienceLogo.svg'
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 
+import { createUser } from '@/api/services/auth'
+import { toast } from 'react-toastify'
+
 export default function Register() {
-    const [jwt, setJwt] = useState('test_jwt_token')
     const [email, setEmail] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLasttName] = useState('')
@@ -18,22 +20,31 @@ export default function Register() {
         }
 
         try {
-            const newUser = { email, firstName, lastName, password, jwt }
-            const response = await fetch('http://localhost:3000/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newUser),
+            const response = await createUser({
+                email,
+                firstname: firstName,
+                lastname: lastName,
+                passwd: password,
             })
-
-            if (response.ok) {
-                console.log('Inscription réussie !')
+            if (response.success) {
+                console.log('User created successfully', response.data)
+                toast.success('User created successfully', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                })
             } else {
-                console.error("Erreur lors de l'inscription")
+                console.error('Error while creating user', response.message)
+                toast.error('Error while creating user', {
+                    position: 'top-right',
+                    autoClose: 3000,
+                })
             }
         } catch (error) {
-            console.error(error.message)
+            console.error('Error while creating user', error)
+            toast.error('Error while creating user', {
+                position: 'top-right',
+                autoClose: 3000,
+            })
         }
     }
 
@@ -138,9 +149,7 @@ export default function Register() {
                     </div>
 
                     <div>
-                        <button
-                            className="btn-primary w-full text-typo-reverse"
-                        >
+                        <button className="btn-primary w-full text-typo-reverse">
                             Sign up
                         </button>
                     </div>

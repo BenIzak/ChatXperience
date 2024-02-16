@@ -1,5 +1,6 @@
 import { loginUser } from '@/api/services/auth'
-import { setUser } from '@/redux/slices/authSlice'
+import { getUser } from '@/api/services/user'
+import { loginSuccess } from '@/redux/slices/authSlice'
 import CompanyLogo from '@assets/icon/ChatXperienceLogo.svg'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -7,15 +8,13 @@ import { NavLink, useNavigate } from 'react-router-dom'
 
 import { toast } from 'react-toastify'
 
-export default function Login() {
+export default function Signin() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [message, setMessage] = useState<string | undefined>('')
 
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    //const dispatch = useAppDispatch();
-    //const [loginMutation] = useLoginMutation();
 
     const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
@@ -28,26 +27,22 @@ export default function Login() {
 
         setMessage('')
 
-        const result = await loginUser({ email, password })
+        try {
+            const result = await loginUser({ email, passwd: password })
+            if (!result.data) {
+                setMessage('An error occurred while trying to login')
+                return
+            }
+            setMessage('login successful')
+            dispatch(loginSuccess(result.data))
+            toast.success('Login successful')
 
-        if (result.success) {
-            toast.success('Login successful', {
-                position: 'top-right',
-                autoClose: 3000,
-            })
-            console.log('Login successful', result.data)
-
-            localStorage.setItem('token', result.data.jwt)
-            // Dispatch the setUser action with the user data to update the store
-            dispatch(
-                setUser({ id: result.data.id, name: result.data.firstname })
-            )
-
-            navigate('/chat') // Use navigate to redirect
-        } else {
-            setMessage(result.message)
-            console.error('Error while login', result.message)
+            navigate('/profile')
+        } catch (error) {
+            console.error('An error occurred while trying to login', error)
+            setMessage('An error occurred while trying to login')
         }
+    }
 
     return (
         <div className="flex min-h-full flex-1 flex-col justify-center">

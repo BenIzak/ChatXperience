@@ -1,15 +1,22 @@
 export const baseURL = 'http://localhost:3000'
 
+export interface ApiResponse {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data?: any
+    success: boolean
+    message?: string
+}
+
 export interface CreateUserRequest {
     firstname: string
     lastname: string
-    password: string
+    passwd: string
     email: string
 }
 
 export interface LoginUserRequest {
     email: string
-    password: string
+    passwd: string
 }
 
 export interface DeleteUserRequest {
@@ -21,7 +28,7 @@ export interface UpdateUserRequest {
     firstname?: string
     lastname?: string
     email?: string
-    password?: string
+    passwd?: string
 }
 
 export interface CreateGroupRequest {

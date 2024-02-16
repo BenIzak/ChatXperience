@@ -5,12 +5,13 @@ import {
     baseURL,
 } from '@/api/index'
 
-export async function createGroup(request: CreateGroupRequest) {
+export async function createGroup(request: CreateGroupRequest, token: string) {
     try {
-        const response = await fetch(`${baseURL}/groups`, {
+        const response = await fetch(`${baseURL}/group`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization: token,
             },
             body: JSON.stringify(request),
         })
