@@ -1,4 +1,28 @@
+import { UserData } from '@/types';
 import { DeleteUserRequest, UpdateUserRequest, baseURL } from '@api/index'
+
+
+export async function getUser(id: number, token: string): Promise<UserData> {
+    try {
+        const response = await fetch(`${baseURL}/user/${id}`, {
+            headers: {
+                Authorization: token,
+            },
+        });
+        const result = await response.json();
+        if (response.ok) {
+            return result;
+        } else {
+            throw new Error(result.message);
+        }
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error;
+        } else {
+            throw new Error('An unknown error occurred');
+        }
+    }
+}
 
 export async function deleteUser(request: DeleteUserRequest) {
     try {

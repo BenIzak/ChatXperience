@@ -3,12 +3,14 @@ import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 
 interface AuthState {
     isAuthenticated: boolean;
-    user: { id: string; name: string } | null;
+    token: string | null; // Update the type to allow null
+    userId: number | null; // Update the type to allow null
 }
 
 const initialState: AuthState = {
     isAuthenticated: Boolean(localStorage.getItem('token')),
-    user: null,
+    token: localStorage.getItem('token'),
+    userId: Number(localStorage.getItem('user_id')),
 };
 
 export const authSlice = createSlice({
@@ -17,24 +19,27 @@ export const authSlice = createSlice({
     reducers: {
         verifyAuth: (state) => {
             state.isAuthenticated = Boolean(localStorage.getItem('token'));
+            state.token = localStorage.getItem('token');
+            state.userId = Number(localStorage.getItem('user_id'));
         },
-        setUser: (state, action: PayloadAction<{ id: string; name: string }>) => {
-            state.user = action.payload;
+        loginSuccess: (state, action: PayloadAction<{ token: string; userId: string }>) => {
+            const { token, userId } = action.payload;
+            localStorage.setItem('token', token);
+            localStorage.setItem('user_id', userId);
             state.isAuthenticated = true;
-            localStorage.setItem('user_id', action.payload.id);
-            localStorage.setItem('user_name', action.payload.name);
+            state.token = token;
+            state.userId = Number(userId);
         },
         logout: (state) => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user_id');
             state.isAuthenticated = false;
-            state.user = null;
-            localStorage.removeItem('token')
-            localStorage.removeItem('user_id')
-            localStorage.removeItem('user_name')
-            localStorage.removeItem('currentChat')
+            state.token = null;
+            state.userId = null;
         },
     },
 });
 
-export const { setUser, verifyAuth, logout } = authSlice.actions;
+export const { loginSuccess, verifyAuth, logout } = authSlice.actions;
 
 export default authSlice.reducer;

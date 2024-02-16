@@ -4,6 +4,8 @@ import formatDateString from '@/hooks/useDateFormat'
 import { Chat } from '@/type'
 import Modal from './Modal'
 import CreateGroupForm from '../group/CreateGroupForm'
+import { createGroup } from '@/api/services/group'
+import { CreateGroupRequest } from '@/api'
 
 const ChatList = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -38,7 +40,17 @@ const ChatList = () => {
         console.log('open modal')
     }
 
-    const onSubmit = () => {
+    const onSubmit = async (request: CreateGroupRequest, token: string) => {
+        try {
+            const response = await createGroup(request, token)
+            if (response.success) {
+                console.log('Group created successfully')
+            } else {
+                console.error('Failed to create group:', response.message)
+            }
+        } catch (error) {
+            console.error('Failed to create group:', error)
+        }
         setIsModalOpen(false)
     }
 
@@ -54,7 +66,7 @@ const ChatList = () => {
                     setShowModal={setIsModalOpen}
                     onValidate={() => {}}
                 >
-                    <CreateGroupForm onSubmit={() => {}} onCancel={() => {}} />
+                    <CreateGroupForm onSubmit={onSubmit} onCancel={onCancel} />
                 </Modal>
             )}
             <div className="flex h-full w-full flex-row gap-4">

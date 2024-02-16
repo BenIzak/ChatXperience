@@ -1,8 +1,8 @@
-import { CreateUserRequest, LoginUserRequest, baseURL } from '@/api/index'
+import { CreateUserRequest, LoginUserRequest, ApiResponse, baseURL } from '@/api/index'
 
 export async function createUser(request: CreateUserRequest) {
     try {
-        const response = await fetch(`${baseURL}/users`, {
+        const response = await fetch(`${baseURL}/user`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -12,33 +12,37 @@ export async function createUser(request: CreateUserRequest) {
         return await response.json()
     } catch (error) {
         if (error instanceof Error) {
-            return { success: false, message: error.message }
+            return { message: error.message }
         } else {
-            return { success: false, message: 'An unknown error occurred' }
+            return { message: 'An unknown error occurred' }
         }
     }
 }
 
+
 export async function loginUser(request: LoginUserRequest) {
     try {
-        const response = await fetch(`${baseURL}/users`, {
-            method: 'GET',
+        const response = await fetch(`${baseURL}/login`, {
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(request),
-        })
-        const users = await response.json()
-        if (users.length > 0) {
-            return { success: true, data: users[0] }
-        } else {
-            return { success: false, message: 'Email or password incorrect' }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return { message: errorData.error || 'Login failed' };
         }
+
+        const data = await response.json();
+        return { data };
+
     } catch (error) {
         if (error instanceof Error) {
-            return { success: false, message: error.message }
+            return { message: error.message };
         } else {
-            return { success: false, message: 'An unknown error occurred' }
+            return { message: 'An unknown error occurred' };
         }
     }
 }
