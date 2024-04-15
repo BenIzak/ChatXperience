@@ -5,17 +5,22 @@ import {
     baseURL,
 } from '@/api/index'
 
-export async function createGroup(request: CreateGroupRequest) {
+export async function createGroup(data : CreateGroupRequest) {
+    const token = localStorage.getItem('token');
+
     try {
-        const response = await fetch(`${baseURL}/groups`, {
+        const response = await fetch(`http://localhost:3000/group`, {
             method: 'POST',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(request),
-        })
-        const data = await response.json()
-        return data
+            body: JSON.stringify(data)
+        });
+        if (!response.ok) {
+            throw new Error('Failed to create group');
+        }
+        return await response.json();
     } catch (error) {
         if (error instanceof Error) {
             return { success: false, message: error.message }
@@ -50,6 +55,20 @@ export async function updateGroup(request: UpdateGroupRequest) {
             },
             body: JSON.stringify(request),
         })
+        const data = await response.json()
+        return data
+    } catch (error) {
+        if (error instanceof Error) {
+            return { success: false, message: error.message }
+        } else {
+            return { success: false, message: 'An unknown error occurred' }
+        }
+    }
+}
+
+export async function getGroupsByUserId(userId: string) {
+    try {
+        const response = await fetch(`${baseURL}/groups/user/${userId}`)
         const data = await response.json()
         return data
     } catch (error) {

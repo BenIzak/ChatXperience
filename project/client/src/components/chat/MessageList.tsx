@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import NewMessageForm from '@components/chat/NewMessageForm'
 import Message from '@components/chat/Message'
 import { Messages } from '@/type'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
 
 type MessageListProps = {
     currentChatId: string | undefined
@@ -15,11 +17,12 @@ type newMessageProps = {
 
 const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
     const [messages, setMessages] = useState<Messages[]>([])
-    const userName = localStorage.getItem('user_name')
-
+    // get user name from redux store
+    const userName = useSelector((state: RootState) => state.user.userDetails?.firstname);
+    
     const [props, setProps] = useState<newMessageProps>({
         currentChatId: currentChatId || 'none',
-        senderName: localStorage.getItem('user_name') || 'none',
+        senderName: userName || 'none',
     })
 
     useEffect(() => {
@@ -78,3 +81,7 @@ const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
 }
 
 export default MessageList
+function fetchUserDetails(userID: string): any {
+    throw new Error('Function not implemented.')
+}
+

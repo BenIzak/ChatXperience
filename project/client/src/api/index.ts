@@ -1,5 +1,26 @@
 export const baseURL = 'http://localhost:3000'
 
+
+export interface User {
+    id: number;
+    firstname: string;
+    lastname: string;
+    email: string;
+    connected: boolean;
+    lastConnection: Date;
+    createdAt: Date;
+    updatedAt: Date;
+  }
+  export interface AuthState {
+    isAuthenticated: boolean;
+    user: User | null;
+  }
+  
+  export interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    message?: string;
+  }
 export interface CreateUserRequest {
     firstname: string
     lastname: string
@@ -26,7 +47,7 @@ export interface UpdateUserRequest {
 
 export interface CreateGroupRequest {
     creator_id: number
-    name: string
+    Name: string
     public: boolean
     description?: string
 }
