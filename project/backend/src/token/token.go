@@ -2,6 +2,8 @@ package token
 
 import (
 	"fmt"
+	"log"
+	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 )
@@ -11,14 +13,24 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
+// GenerateToken crée un token JWT
 func ValidateTokenAndGetUserID(tokenString string) (int, error) {
-	claims := &Claims{}
+	// Vérifier et nettoyer le préfixe "Bearer"
+	if strings.HasPrefix(tokenString, "Bearer ") {
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+	} else {
+		return 0, fmt.Errorf("bearer token not found")
+	}
 
+	log.Printf("Token after cleaning: %s", tokenString) // Debug
+
+	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte("SecretKey"), nil
 	})
+
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("error parsing token: %v", err)
 	}
 
 	if !token.Valid {

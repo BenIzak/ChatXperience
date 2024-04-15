@@ -47,31 +47,27 @@ func CreateUserEndpoint(db *sql.DB) http.HandlerFunc {
 
 func LoginEndpoint(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var newUser entity.User
-		err := json.NewDecoder(r.Body).Decode(&newUser)
-		if err != nil {
-			log.Printf("Erreur de décodage JSON : %v", err)
-			http.Error(w, "Erreur de décodage JSON", http.StatusBadRequest)
+		log.Println("Attempting to log in with body:", r.Body)
+		var loginUser entity.User
+		if err := json.NewDecoder(r.Body).Decode(&loginUser); err != nil {
+			log.Printf("JSON decode error: %v", err)
+			http.Error(w, `{"error": "Invalid JSON"}`, http.StatusBadRequest)
 			return
 		}
 
-		userID, tk, err := user.Login(db, newUser.Email, newUser.Passwd)
+		log.Printf("Logging in user: %s", loginUser.Email)
+		userID, token, err := user.Login(db, loginUser.Email, loginUser.Passwd)
 		if err != nil {
-			log.Printf("Erreur lors de la connexion de l'utilisateur : %v", err)
-			http.Error(w, "Erreur lors de la connexion de l'utilisateur", http.StatusInternalServerError)
+			log.Printf("Login error: %v", err)
+			http.Error(w, `{"error": "Login failed"}`, http.StatusInternalServerError)
 			return
 		}
 
-		response := struct {
-			UserID int    `json:"userId"`
-			Token  string `json:"token"`
-		}{
-			UserID: userID,
-			Token:  tk,
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(response)
+		log.Printf("Login successful: UserID: %d, Token: %s", userID, token)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"userId": userID,
+			"token":  token,
+		})
 	}
 }
 
@@ -105,6 +101,39 @@ func GetUserByIDEndpoint(db *sql.DB) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonUser)
+	}
+}
+
+func GetAllUsersEndpoint(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		users, err := user.GetAllUsers(db)
+		if err != nil {
+			log.Printf("Error fetching users: %v", err)
+			http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
+			return
+		}
+
+		if len(users) == 0 {
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("No users found"))
+			return
+		}
+
+		response, err := json.Marshal(users)
+		if err != nil {
+			log.Printf("Error marshaling users: %v", err)
+			http.Error(w, "Error processing users data", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(response)
 	}
 }
 

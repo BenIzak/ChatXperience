@@ -41,8 +41,7 @@ func Login(db *sql.DB, email, password string) (int, string, error) {
 	err := db.QueryRow("SELECT id, pw_hash FROM users WHERE email = ?", email).Scan(&user.ID, &user.Passwd)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return 0, "", errors.New("invalid email")
-
+			return 0, "", errors.New("user not found")
 		}
 		return 0, "", err
 	}
@@ -51,50 +50,68 @@ func Login(db *sql.DB, email, password string) (int, string, error) {
 		return 0, "", errors.New("invalid password")
 	}
 
-	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, token.Claims{
+	// Create the claims
+	claims := &token.Claims{
 		UserId: user.ID,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 2).Unix(), // Token expires in 2 hours
 		},
-	})
+	}
 
-	token, err := tk.SignedString([]byte("SecretKey"))
+	// Generate the token
+	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := tk.SignedString([]byte("SecretKey"))
 	if err != nil {
 		return 0, "", err
 	}
 
-	return user.ID, token, nil
+	return user.ID, tokenString, nil
 }
 
 func GetUserByID(db *sql.DB, userID int) (entity.User, error) {
 	var user entity.User
-
 	var last_connection, createdAt, updatedAt []uint8
-	err := db.QueryRow("SELECT firstname, lastname, email, last_connection, created_at, updated_at FROM users WHERE id = ?", userID).Scan(&user.FirstName, &user.LastName, &user.Email, &last_connection, &createdAt, &updatedAt)
+
+	// Ne sélectionnez que les champs nécessaires
+	err := db.QueryRow("SELECT firstname, lastname, email, last_connection, created_at, updated_at FROM users WHERE id = ?", userID).Scan(
+		&user.FirstName, &user.LastName, &user.Email, &last_connection, &createdAt, &updatedAt,
+	)
 	if err != nil {
 		log.Printf("Erreur lors de la récupération de l'utilisateur : %v", err)
 		return entity.User{}, fmt.Errorf("could not get user: %v", err)
 	}
 
-	lastConnectionString := string(last_connection)
-	user.LastConnection, err = time.Parse("2006-01-02 15:04:05", lastConnectionString)
+	// Convertir les timestamps
+	user.LastConnection, _ = time.Parse("2006-01-02 15:04:05", string(last_connection))
+	user.CreatedAt, _ = time.Parse("2006-01-02 15:04:05", string(createdAt))
+	user.UpdatedAt, _ = time.Parse("2006-01-02 15:04:05", string(updatedAt))
+
+	return user, nil
+}
+
+func GetAllUsers(db *sql.DB) ([]entity.User, error) {
+	var users []entity.User
+	query := `SELECT id, firstname, lastname, email FROM users`
+	rows, err := db.Query(query)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error querying users: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var user entity.User
+		if err := rows.Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email); err != nil {
+			continue // or log the error if needed
+		}
+		users = append(users, user)
 	}
 
-	createdAtString := string(createdAt)
-	user.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdAtString)
-	if err != nil {
-		log.Fatal(err)
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 
-	updatedAtString := string(updatedAt)
-	user.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", updatedAtString)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return user, err
+	return users, nil
 }
 
 func DeleteUserByID(db *sql.DB, userID int) error {
