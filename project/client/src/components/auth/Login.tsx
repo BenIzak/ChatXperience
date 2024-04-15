@@ -1,11 +1,9 @@
 import { loginUser } from '@/api/services/auth'
-import { setUser } from '@/redux/slices/authSlice'
+import { setUserId } from '@/redux/slices/authSlice';
 import CompanyLogo from '@assets/icon/ChatXperienceLogo.svg'
 import { useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { NavLink, useNavigate } from 'react-router-dom'
-
-import { toast } from 'react-toastify'
 
 export default function Login() {
     const [email, setEmail] = useState('')
@@ -18,36 +16,17 @@ export default function Login() {
     //const [loginMutation] = useLoginMutation();
 
     const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-
-        if (!email || !password) {
-            console.error('The email or password is required to login')
-            setMessage('The email or password is required to login')
-            return
-        }
-
-        setMessage('')
-
-        const result = await loginUser({ email, password })
-
+        event.preventDefault();
+        const result = await loginUser({ email, password });
         if (result.success) {
-            toast.success('Login successful', {
-                position: 'top-right',
-                autoClose: 3000,
-            })
-            console.log('Login successful', result.data)
-
-            localStorage.setItem('token', result.data.jwt)
-            // Dispatch the setUser action with the user data to update the store
-            dispatch(
-                setUser({ id: result.data.id, name: result.data.firstname })
-            )
-
-            navigate('/chat') // Use navigate to redirect
+            localStorage.setItem('token', result.data.token);
+            dispatch(setUserId(result.data.userId));
+            navigate('/chat'); // Redirection
         } else {
-            setMessage(result.message)
-            console.error('Error while login', result.message)
+            console.error('Login failed:', result.message);
+            setMessage(result.message);
         }
+    }
 
     return (
         <div className="flex min-h-full flex-1 flex-col justify-center">

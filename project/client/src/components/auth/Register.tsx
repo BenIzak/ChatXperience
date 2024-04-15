@@ -1,42 +1,49 @@
-import CompanyLogo from '@assets/icon/ChatXperienceLogo.svg'
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
+
+import { createUser } from '@/api/services/auth'
+import CompanyLogo from '@assets/icon/ChatXperienceLogo.svg'
+
+import { toast } from 'react-toastify'
+import { CreateUserRequest } from '@/api'
 
 export default function Register() {
-    const [jwt, setJwt] = useState('test_jwt_token')
     const [email, setEmail] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLasttName] = useState('')
     const [password, setPassword] = useState('')
     const [passwordConfirm, setPasswordConfirm] = useState('')
 
-    const handleSignup = async (event: { preventDefault: () => void }) => {
-        event.preventDefault()
+    const navigate = useNavigate()
+
+
+    const handleSignup = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
         if (password !== passwordConfirm) {
-            console.error('Les mots de passe ne correspondent pas !')
-            return
+            toast.error('Passwords do not match!');
+            return;
         }
 
+        const newUser: CreateUserRequest = {
+                firstname: firstName,
+                lastname: lastName,
+                email: email,
+                password: password,
+            }
         try {
-            const newUser = { email, firstName, lastName, password, jwt }
-            const response = await fetch('http://localhost:3000/users', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newUser),
-            })
-
-            if (response.ok) {
-                console.log('Inscription réussie !')
+            const result = await createUser(newUser);
+            if (result.success) {
+                toast.success('Registration successful!');
+                navigate('/login'); // Redirect the user to login page after successful registration
             } else {
-                console.error("Erreur lors de l'inscription")
+                toast.error(result.message || "Error during registration");
             }
         } catch (error) {
-            console.error(error.message)
+            toast.error((error as Error).message || 'An unknown error occurred'); // Add type assertion to specify 'error' as 'Error' type
         }
-    }
 
+    }
+    
     return (
         <div className="flex min-h-full flex-1 flex-col justify-center">
             <div className="flex flex-col items-center justify-center space-y-6 text-center text-gray-600 sm:mx-auto sm:w-full sm:max-w-sm">
