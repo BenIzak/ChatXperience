@@ -39,9 +39,8 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 	// Cors middleware, the goal is to allow the front-end to access the API
 	handlers.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"}, // Met l'URL de ton front-end ici
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		ExposedHeaders:   []string{"Link"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
@@ -52,12 +51,14 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 	})
 
 	handlers.Post("/user", myhttp.CreateUserEndpoint(db))
-	handlers.Get("/login", myhttp.LoginEndpoint(db))
+	handlers.Post("/login", myhttp.LoginEndpoint(db))
 	handlers.Get("/user/{userID:[0-9+]}", myhttp.GetUserByIDEndpoint(db))
+	handlers.Get("/users", myhttp.GetAllUsersEndpoint(db))
 	handlers.Delete("/user/{userID:[0-9+]}", myhttp.DeleteUserByIDEndpoint(db))
 	handlers.Patch("/user/{userID:[0-9+]}", myhttp.UpdateUserByIDEndpoint(db))
 
 	handlers.Post("/group", myhttp.CreateGroupEndpoint(db))
+	handlers.Get("/user/{userID:[0-9]+}/groups", myhttp.GetGroupsByUserIDEndpoint(db))
 	handlers.Get("/group/{groupID:[0-9+]}", myhttp.GetGroupByIDEndpoint(db))
 	handlers.Patch("/group/{groupID:[0-9+]}", myhttp.UpdateGroupByIDEndpoint(db))
 	handlers.Delete("/group/{groupID:[0-9+]}", myhttp.DeleteGroupByIDEndpoint(db))

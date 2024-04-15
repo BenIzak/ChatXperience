@@ -14,30 +14,35 @@ import (
 	"github.com/go-chi/chi"
 )
 
+type CreateGroupRequest struct {
+	entity.Group
+	ParticipantIDs []int `json:"participantIDs"`
+}
+
 func CreateGroupEndpoint(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
+		var req CreateGroupRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		if req.Group.Name == "" {
+			http.Error(w, "Name is required", http.StatusBadRequest)
+			return
+		}
+
+		creatorID, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
 		if err != nil {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
-		var newgroup entity.Group
-		if err := json.NewDecoder(r.Body).Decode(&newgroup); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(err.Error()))
-			return
-		}
 
-		if newgroup.CreatorID == 0 || newgroup.Name == "" {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte("CreatorID and Name are required"))
-			return
-		}
+		req.Group.CreatorID = creatorID
 
-		group, err := group.CreateGroup(db, newgroup.CreatorID, newgroup.Name, newgroup.Public, newgroup.Description)
+		group, err := group.CreateGroup(db, req.Group, req.ParticipantIDs)
 		if err != nil {
-			log.Printf("Erreur lors de la création du groupe : %v", err)
-			http.Error(w, "Erreur lors de la création du groupe", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -49,6 +54,45 @@ func CreateGroupEndpoint(db *sql.DB) http.HandlerFunc {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonGroup)
+	}
+}
+
+func GetGroupsByUserIDEndpoint(db *sql.DB) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
+		if err != nil {
+			log.Printf("Erreur de validation du token: %v", err)
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
+
+		userIDString := chi.URLParam(r, "userID")
+		userID, err := strconv.Atoi(userIDString)
+		if err != nil {
+			log.Printf("Erreur de conversion de l'userID: %v", err)
+			http.Error(w, "Invalid User ID", http.StatusBadRequest)
+			return
+		}
+
+		groups, err := group.GetGroupsByUserID(db, userID)
+		if err != nil {
+			log.Printf("Erreur lors de la récupération des groupes: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		if len(groups) == 0 {
+			log.Printf("Aucun groupe trouvé pour l'utilisateur: %d", userID)
+			http.Error(w, "No groups found", http.StatusNotFound)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(groups); err != nil {
+			log.Printf("Erreur lors de l'encodage des groupes: %v", err)
+			http.Error(w, "Failed to encode groups", http.StatusInternalServerError)
+			return
+		}
 	}
 }
 
