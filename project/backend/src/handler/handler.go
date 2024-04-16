@@ -105,7 +105,7 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Valider le jeton JWT et obtenir l'ID de l'utilisateur
-	userID, err := tokenvalidate.ValidateTokenAndGetUserID(token)
+	userID, err := tokenvalidate.GetUserIDFromToken(token)
 	if err != nil {
 		http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
 		return
