@@ -7,6 +7,7 @@ import (
 
 	"github.com/BenIzak/ChatXperience/project/src/entity"
 	myhttp "github.com/BenIzak/ChatXperience/project/src/http"
+	tokenvalidate "github.com/BenIzak/ChatXperience/project/src/token"
 	"github.com/gorilla/websocket"
 
 	"github.com/go-chi/chi"
@@ -16,15 +17,10 @@ import (
 
 // WebSocketMessage représente un message WebSocket
 type WebSocketMessage struct {
-	Sender  string `json:"sender"`
-	Content string `json:"content"`
+	Sender         string `json:"sender"`
+	Content        string `json:"content"`
+	ReceiverUserID string `json:"receiver"`
 }
-
-// clients garde une trace des clients connectés
-var clients = make(map[*websocket.Conn]bool)
-
-// broadcast diffuse les messages aux clients connectés
-var broadcast = make(chan WebSocketMessage)
 
 func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 
@@ -39,7 +35,7 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 	// Cors middleware, the goal is to allow the front-end to access the API
 	handlers.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173"}, // Met l'URL de ton front-end ici
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
@@ -82,7 +78,63 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 
 // Définir une structure pour le client WebSocket
 type Client struct {
-	Conn *websocket.Conn
+	Conn   *websocket.Conn
+	UserID int
+}
+
+var upgrader = websocket.Upgrader{}
+
+// clients garde une trace des clients connectés
+var clients = make(map[*websocket.Conn]*Client)
+
+// broadcast diffuse les messages aux clients connectés
+var broadcast = make(chan WebSocketMessage)
+
+func serveWs(w http.ResponseWriter, r *http.Request) {
+	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+	// Récupérer le jeton JWT à partir de la chaîne de requête
+	token := r.URL.Query().Get("token")
+	if token == "" {
+		http.Error(w, "Missing token", http.StatusUnauthorized)
+		return
+	}
+
+	// Valider le jeton JWT et obtenir l'ID de l'utilisateur
+	userID, err := tokenvalidate.ValidateTokenAndGetUserID(token)
+	if err != nil {
+		http.Error(w, "Invalid token: "+err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	// Établir la connexion WebSocket
+	ws, err := websocket.Upgrade(w, r, nil, 1024, 1024)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	defer ws.Close()
+
+	// Créer une nouvelle instance de client avec l'identifiant de l'utilisateur
+	client := &Client{Conn: ws, UserID: userID}
+	clients[ws] = client
+
+	log.Printf("Connected: UserID %d", userID)
+
+	// Lire et traiter les messages envoyés par le client
+	for {
+		var message WebSocketMessage
+		err := ws.ReadJSON(&message)
+		if err != nil {
+			log.Printf("Error occurred: %v", err)
+			delete(clients, ws) // Supprimer le client de la liste lorsqu'il se déconnecte
+			break
+		}
+		log.Printf("Received message: %s from UserID %d", message.Content, userID)
+
+		// Diffuser le message à tous les clients connectés
+		broadcast <- message
+	}
 }
 
 // Fonction pour écouter les messages broadcastés et les traiter
@@ -91,45 +143,16 @@ func handleMessages() {
 		// Attendre un message sur le canal de diffusion
 		msg := <-broadcast
 
-		// Traiter le message ici, par exemple, vous pouvez l'enregistrer en base de données, l'envoyer à d'autres clients, etc.
-		log.Printf("Message received from %s: %s\n", msg.Sender, msg.Content)
-	}
-}
-
-func serveWs(w http.ResponseWriter, r *http.Request) {
-	conn, err := websocket.Upgrade(w, r, nil, 1024, 1024)
-	if err != nil {
-		http.Error(w, "Could not open websocket connection", http.StatusBadRequest)
-		return
-	}
-
-	// Envoyer un message de confirmation au client WebSocket
-	confirmation := "WebSocket connection established successfully!"
-	err = conn.WriteMessage(websocket.TextMessage, []byte(confirmation))
-	if err != nil {
-		log.Printf("Error sending confirmation message: %v", err)
-		conn.Close()
-		return
-	}
-
-	// Ajouter le client à la liste des clients connectés
-	clients[conn] = true
-
-	// Commencer à écouter les messages du client WebSocket
-	for {
-		var msg WebSocketMessage
-		// Lire le message du client
-		err := conn.ReadJSON(&msg)
-		if err != nil {
-			log.Println("Client disconnected")
-			break
+		// Parcourir tous les clients connectés et envoyer le message à chacun
+		for _, client := range clients {
+			err := client.Conn.WriteJSON(msg)
+			if err != nil {
+				log.Printf("error occurred while broadcasting message: %v", err)
+				// En cas d'erreur d'écriture, supprimer le client de la liste
+				delete(clients, client.Conn)
+			}
 		}
-		// Diffuser le message à tous les clients connectés
-		broadcast <- msg
 	}
-
-	// Supprimer le client de la liste des clients connectés lorsqu'il se déconnecte
-	delete(clients, conn)
 }
 
 type HandlerReference struct {
@@ -138,4 +161,8 @@ type HandlerReference struct {
 	Group      *entity.Group
 	UsersGroup *entity.UsersGroup
 	Message    *entity.Message
+}
+
+type Message struct {
+	Message string `json:"message"`
 }

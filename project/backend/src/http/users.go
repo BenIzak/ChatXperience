@@ -73,11 +73,11 @@ func LoginEndpoint(db *sql.DB) http.HandlerFunc {
 
 func GetUserByIDEndpoint(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
-		if err != nil {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
+		// _, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
+		// if err != nil {
+		// 	http.Error(w, "Invalid token", http.StatusUnauthorized)
+		// 	return
+		// }
 		userIDString := chi.URLParam(r, "userID")
 
 		userID, err := strconv.Atoi(userIDString)

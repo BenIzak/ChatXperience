@@ -1,87 +1,108 @@
-import React, { useEffect, useState } from 'react'
-import NewMessageForm from '@components/chat/NewMessageForm'
-import Message from '@components/chat/Message'
-import { Messages } from '@/type'
-import { useSelector } from 'react-redux'
-import { RootState } from '@/redux/store'
+import React, { useEffect, useState, useCallback } from 'react';
+import NewMessageForm from '@components/chat/NewMessageForm';
+import Message from '@components/chat/Message';
+import { Messages } from '@/type';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/redux/store';
 
 type MessageListProps = {
-    currentChatId: string | undefined
-    userID: string
-}
-
-type newMessageProps = {
-    currentChatId: string
-    senderName: string
-}
+    currentChatId: string | undefined;
+    userID: string;
+};
 
 const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
-    const [messages, setMessages] = useState<Messages[]>([])
-    // get user name from redux store
+    const [messages, setMessages] = useState<Messages[]>([]);
+    const [newMessage, setNewMessage] = useState('');
     const userName = useSelector((state: RootState) => state.user.userDetails?.firstname);
-    
-    const [props, setProps] = useState<newMessageProps>({
-        currentChatId: currentChatId || 'none',
-        senderName: userName || 'none',
-    })
+    const [socket, setSocket] = useState<WebSocket | null>(null);
+
+    // Fonction pour initialiser la WebSocket
+    const initWebSocket = useCallback(() => {
+        const token = localStorage.getItem('token');
+        const socketUrl = token ? `ws://localhost:3000/ws?token=${encodeURIComponent(token)}` : 'ws://localhost:3000/ws';
+        const newSocket = new WebSocket(socketUrl);
+
+        newSocket.onopen = () => {
+            console.log('WebSocket connection established.');
+        };
+
+        newSocket.onmessage = (event) => {
+            try {
+                const receivedMessage = JSON.parse(event.data) as Messages;
+                setMessages(prevMessages => [...prevMessages, receivedMessage]);
+            } catch (e) {
+                console.error('Error parsing message:', e);
+                console.log('Received raw data:', event.data);
+            }
+        };
+
+        newSocket.onclose = (event) => {
+            console.log('WebSocket connection closed:', event.reason);
+            setSocket(null);
+            // Tentative de reconnexion
+            setTimeout(() => {
+                console.log("Attempting to reconnect WebSocket...");
+                initWebSocket();
+            }, 5000); // Reconnecter après 5 secondes
+        };
+
+        setSocket(newSocket);
+    }, []);
 
     useEffect(() => {
-        const fetchMessages = async () => {
-            if (!currentChatId) return // Ne rien faire si aucun chat n'est sélectionné
-
-            const response = await fetch(
-                `http://localhost:3000/Chats?id=${currentChatId}`
-            )
-            const chats = await response.json()
-            if (chats.length > 0) {
-                const chatMessages = chats[0].messages as Messages[]
-                setMessages(chatMessages)
-            }
+        if (!socket) {
+            initWebSocket();
         }
+    }, [socket, initWebSocket]);
 
-        fetchMessages()
-    }, [currentChatId])
+    const sendMessage = () => {
+        if (socket && newMessage && socket.readyState === WebSocket.OPEN) {
+            console.log("Socket status:", socket.readyState);
+            const messageData = {
+                sender: userID,
+                content: newMessage,
+                receiver: userID // S'assurer que cette propriété est gérée côté serveur
+            };
+            socket.send(JSON.stringify(messageData));
+            setNewMessage(''); // Effacer le champ de message après l'envoi
+        } else {
+            console.log("No message to send or socket not connected.");
+        }
+    };
 
-    // Afficher un message de bienvenue si aucun chat n'est sélectionné
     if (!currentChatId) {
         return (
             <div className="flex h-full w-full items-center justify-center">
                 <p className="text-center text-typo-primary">
-                    Bienvenue <span className="font-bold">{userName}</span>,
-                    créez ou sélectionnez un chat pour commencer.
+                    Bienvenue <span className="font-bold">{userName}</span>, créez ou sélectionnez un chat pour commencer.
                 </p>
+                <input
+                    type="text"
+                    placeholder="Enter your message"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    className="border-2 border-gray-300 rounded px-4 py-2 m-2"
+                />
+                <button
+                    onClick={sendMessage}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                >
+                    Send
+                </button>
             </div>
-        )
-    }
-
-    // auto scroll to bottom
-    const messageList = document.getElementById('messageList')
-    if (messageList) {
-        messageList.scrollTop = messageList.scrollHeight
+        );
     }
 
     return (
         <div className="flex h-full w-full flex-1 flex-col justify-between space-y-4 rounded-xl bg-gray-200 p-4">
             <div className="flex flex-col space-y-4 overflow-y-auto pr-2">
                 {messages.map((message) => (
-                    <span key={message.id}>
-                        <Message
-                            key={message.id}
-                            time={message.timestamp}
-                            text={message.content}
-                            username={message.senderName}
-                            isCurrent={message.senderId === userID}
-                        />
-                    </span>
+                    <Message key={message.id} time={message.timestamp} text={message.content} username={message.senderName} isCurrent={message.senderId === userID} />
                 ))}
             </div>
-            <NewMessageForm senderName={props.senderName} />
+            <NewMessageForm senderName={userName || 'none'} />
         </div>
-    )
-}
+    );
+};
 
-export default MessageList
-function fetchUserDetails(userID: string): any {
-    throw new Error('Function not implemented.')
-}
-
+export default MessageList;
