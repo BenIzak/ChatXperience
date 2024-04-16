@@ -11,14 +11,19 @@ export async function getUserDetails(userId: number) {
             },
         });
 
-        const data: User = await response.json();
-        return data;
-    } catch (error) {
-        if (error instanceof Error) {
-            return { success: false, message: error.message }
-        } else {
-            return { success: false, message: "An unknown error occurred" }
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+        if (!data) {
+            throw new Error("No user data returned from the API");
+        }
+
+        return data as User;
+    } catch (error) {
+        console.error("Failed to fetch user details:", error);
+        throw error;
     }
 }
 

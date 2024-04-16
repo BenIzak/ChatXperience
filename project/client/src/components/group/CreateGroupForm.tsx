@@ -11,7 +11,7 @@ interface User {
 interface CreateGroupRequest {
     name: string;
     public: boolean;
-    participants: number[];
+    participantIDs: number[];
     description?: string;
 }
 
@@ -52,7 +52,7 @@ const CreateGroupForm: React.FC<GroupFormProps> = ({ onCancel }) => {
         const groupData: CreateGroupRequest = {
             name: groupName || 'Group Chat',
             public: isPublic,
-            participants: selectedUsers,
+            participantIDs: selectedUsers,
         };
 
         const result = await createGroup(groupData);
