@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/BenIzak/ChatXperience/project/src/entity"
 	myhttp "github.com/BenIzak/ChatXperience/project/src/http"
@@ -143,13 +144,15 @@ func handleMessages() {
 		// Attendre un message sur le canal de diffusion
 		msg := <-broadcast
 
-		// Parcourir tous les clients connectés et envoyer le message à chacun
+		// Parcourir tous les clients connectés et envoyer le message à celui dont l'ID correspond au receiver
 		for _, client := range clients {
-			err := client.Conn.WriteJSON(msg)
-			if err != nil {
-				log.Printf("error occurred while broadcasting message: %v", err)
-				// En cas d'erreur d'écriture, supprimer le client de la liste
-				delete(clients, client.Conn)
+			if strconv.Itoa(client.UserID) == msg.ReceiverUserID {
+				err := client.Conn.WriteJSON(msg)
+				if err != nil {
+					log.Printf("error occurred while broadcasting message: %v", err)
+					// En cas d'erreur d'écriture, supprimer le client de la liste
+					delete(clients, client.Conn)
+				}
 			}
 		}
 	}

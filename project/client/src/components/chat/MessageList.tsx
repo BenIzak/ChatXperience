@@ -8,10 +8,11 @@ import { RootState } from '@/redux/store';
 type MessageListProps = {
     currentChatId: string | undefined;
     userID: string;
+    receiver: string;
 };
 
 const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
-    const [messages, setMessages] = useState<Messages[]>([]);
+    const [messages, setMessages] = useState<MessageListProps[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const userName = useSelector((state: RootState) => state.user.userDetails?.firstname);
     const [socket, setSocket] = useState<WebSocket | null>(null);
@@ -28,7 +29,8 @@ const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
 
         newSocket.onmessage = (event) => {
             try {
-                const receivedMessage = JSON.parse(event.data) as Messages;
+                const receivedMessage = JSON.parse(event.data) as any;
+                console.log(receivedMessage)
                 setMessages(prevMessages => [...prevMessages, receivedMessage]);
             } catch (e) {
                 console.error('Error parsing message:', e);
@@ -58,10 +60,11 @@ const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
     const sendMessage = () => {
         if (socket && newMessage && socket.readyState === WebSocket.OPEN) {
             console.log("Socket status:", socket.readyState);
+            const userID = localStorage.getItem("userId")
             const messageData = {
                 sender: userID,
                 content: newMessage,
-                receiver: userID // S'assurer que cette propriété est gérée côté serveur
+                receiver: "5" // S'assurer que cette propriété est gérée côté serveur
             };
             socket.send(JSON.stringify(messageData));
             setNewMessage(''); // Effacer le champ de message après l'envoi
@@ -96,9 +99,9 @@ const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
     return (
         <div className="flex h-full w-full flex-1 flex-col justify-between space-y-4 rounded-xl bg-gray-200 p-4">
             <div className="flex flex-col space-y-4 overflow-y-auto pr-2">
-                {messages.map((message) => (
+                {/* {messages.map((message) => (
                     <Message key={message.id} time={message.timestamp} text={message.content} username={message.senderName} isCurrent={message.senderId === userID} />
-                ))}
+                ))} */}
             </div>
             <NewMessageForm senderName={userName || 'none'} />
         </div>
