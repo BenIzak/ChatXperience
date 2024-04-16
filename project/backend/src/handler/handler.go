@@ -8,7 +8,9 @@ import (
 
 	"github.com/BenIzak/ChatXperience/project/src/entity"
 	myhttp "github.com/BenIzak/ChatXperience/project/src/http"
+	"github.com/BenIzak/ChatXperience/project/src/message"
 	tokenvalidate "github.com/BenIzak/ChatXperience/project/src/token"
+	"github.com/BenIzak/ChatXperience/project/src/usersgroups"
 	"github.com/gorilla/websocket"
 
 	"github.com/go-chi/chi"
@@ -18,9 +20,9 @@ import (
 
 // WebSocketMessage représente un message WebSocket
 type WebSocketMessage struct {
-	Sender         string `json:"sender"`
-	Content        string `json:"content"`
-	ReceiverUserID string `json:"receiver"`
+	Sender  string `json:"sender"`
+	Content string `json:"content"`
+	GroupID string `json:"groupID"`
 }
 
 func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
@@ -62,6 +64,7 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 
 	handlers.Post("/usersgroup/add", myhttp.AddUsersGroupEndpoint(db))
 	handlers.Delete("/usersgroup/remove", myhttp.RemoveUsersGroupEndpoint(db))
+	handlers.Get("/usersgroup/{groupID:[0-9+]}", myhttp.GetUsersByGroupIDEndpoint(db))
 
 	handlers.Post("/message", myhttp.CreateMessageEndpoint(db))
 	handlers.Get("/messages/{groupID:[0-9+]}", myhttp.GetMessagesByGroupIDEndpoint(db))
@@ -72,7 +75,7 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 		serveWs(w, r)
 	})
 
-	go handleMessages()
+	go handleMessages(db)
 
 	return handlers
 }
@@ -139,21 +142,43 @@ func serveWs(w http.ResponseWriter, r *http.Request) {
 }
 
 // Fonction pour écouter les messages broadcastés et les traiter
-func handleMessages() {
+func handleMessages(db *sql.DB) {
 	for {
 		// Attendre un message sur le canal de diffusion
 		msg := <-broadcast
+		sender, err := strconv.Atoi(msg.Sender)
+		if err != nil {
+			log.Printf("error occurred while inting message sender: %v", err)
+		}
+		groupID, err := strconv.Atoi(msg.GroupID)
+		if err != nil {
+			log.Printf("error occurred while inting message group: %v", err)
+		}
+
+		users, err := usersgroups.GetUsersByGroupID(db, groupID)
+		if err != nil {
+			log.Println("error while getting users od the group : %s", err)
+		}
+
+		var usersID []int
+
+		for _, usersdata := range users {
+			usersID = append(usersID, usersdata.ID)
+		}
 
 		// Parcourir tous les clients connectés et envoyer le message à celui dont l'ID correspond au receiver
 		for _, client := range clients {
-			if strconv.Itoa(client.UserID) == msg.ReceiverUserID {
-				err := client.Conn.WriteJSON(msg)
-				if err != nil {
-					log.Printf("error occurred while broadcasting message: %v", err)
-					// En cas d'erreur d'écriture, supprimer le client de la liste
-					delete(clients, client.Conn)
+			for _, id := range usersID {
+				if id == client.UserID {
+					err := client.Conn.WriteJSON(msg)
+					if err != nil {
+						log.Printf("error occurred while broadcasting message: %v", err)
+						// En cas d'erreur d'écriture, supprimer le client de la liste
+						delete(clients, client.Conn)
+					}
 				}
 			}
+			_, err = message.CreateMessage(db, sender, groupID, msg.Content)
 		}
 	}
 }

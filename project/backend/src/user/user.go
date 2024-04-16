@@ -73,8 +73,8 @@ func GetUserByID(db *sql.DB, userID int) (entity.User, error) {
 	var last_connection, createdAt, updatedAt []uint8
 
 	// Ne sélectionnez que les champs nécessaires
-	err := db.QueryRow("SELECT firstname, lastname, email, last_connection, created_at, updated_at FROM users WHERE id = ?", userID).Scan(
-		&user.FirstName, &user.LastName, &user.Email, &last_connection, &createdAt, &updatedAt,
+	err := db.QueryRow("SELECT id, firstname, lastname, email, last_connection, created_at, updated_at FROM users WHERE id = ?", userID).Scan(
+		&user.ID, &user.FirstName, &user.LastName, &user.Email, &last_connection, &createdAt, &updatedAt,
 	)
 	if err != nil {
 		log.Printf("Erreur lors de la récupération de l'utilisateur : %v", err)

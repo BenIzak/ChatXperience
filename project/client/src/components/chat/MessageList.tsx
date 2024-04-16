@@ -9,6 +9,7 @@ type MessageListProps = {
     currentChatId: string | undefined;
     userID: string;
     receiver: string;
+    groupID: string;
 };
 
 const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
@@ -64,7 +65,7 @@ const MessageList: React.FC<MessageListProps> = ({ currentChatId, userID }) => {
             const messageData = {
                 sender: userID,
                 content: newMessage,
-                receiver: "5" // S'assurer que cette propriété est gérée côté serveur
+                groupID: "1"
             };
             socket.send(JSON.stringify(messageData));
             setNewMessage(''); // Effacer le champ de message après l'envoi

@@ -60,14 +60,31 @@ func CreateGroup(db *sql.DB, group entity.Group, participantIDs []int) (*entity.
 func GetGroupsByUserID(db *sql.DB, userID int) ([]entity.Group, error) {
 	var groups []entity.Group
 
-	// SQL query to fetch groups created by the user or where the user is a member.
 	query := `
-	SELECT DISTINCT g.id, g.creator_id, g.name, g.public, g.description, g.created_at, g.updated_at
-	FROM groups g
-	LEFT JOIN users_groups ug ON g.id = ug.group_id
-	WHERE g.creator_id = YOUR_USER_ID OR ug.user_id = YOUR_USER_ID;
-	
-			`
+        SELECT
+            g.id,
+            g.creator_id,
+            g.name,
+            g.public,
+            g.description
+        FROM
+            groups g
+        JOIN
+            users_groups ug ON g.id = ug.group_id
+        WHERE
+            ug.user_id = ?
+        UNION
+        SELECT
+            id,
+            creator_id,
+            name,
+            public,
+            description
+        FROM
+            groups
+        WHERE
+            creator_id = ?
+    `
 
 	rows, err := db.Query(query, userID, userID)
 	if err != nil {
@@ -78,7 +95,7 @@ func GetGroupsByUserID(db *sql.DB, userID int) ([]entity.Group, error) {
 
 	for rows.Next() {
 		var group entity.Group
-		if err := rows.Scan(&group.ID, &group.CreatorID, &group.Name, &group.Public, &group.Description, &group.CreatedAt, &group.UpdatedAt); err != nil {
+		if err := rows.Scan(&group.ID, &group.CreatorID, &group.Name, &group.Public, &group.Description); err != nil {
 			log.Printf("Error scanning group for user %d: %v", userID, err)
 			continue
 		}
