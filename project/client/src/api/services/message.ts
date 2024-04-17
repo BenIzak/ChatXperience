@@ -16,32 +16,25 @@ export async function sendMessage(request: SendMessageRequest) {
         })
         return await response.json()
     } catch (error) {
-        if (error instanceof Error) {
-            return { success: false, message: error.message }
-        } else {
-            return { success: false, message: 'An unknown error occurred' }
-        }
+        console.error("Failed to fetch user details:", error);
+        throw error;
     }
 }
 
-export async function getMessagesByGroupId(
-    request: GetMessagesByGroupIdRequest
-) {
+export async function getMessagesByGroupId( request: GetMessagesByGroupIdRequest ) {
+    const token = localStorage.getItem('token')
     try {
-        const response = await fetch(`${baseURL}/messages`, {
+        const response = await fetch(`${baseURL}/messages/${request.groupID}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify(request),
         })
         return await response.json()
     } catch (error) {
-        if (error instanceof Error) {
-            return { success: false, message: error.message }
-        } else {
-            return { success: false, message: 'An unknown error occurred' }
-        }
+        console.error("Failed to fetch user details:", error);
+        throw error;
     }
 }
 

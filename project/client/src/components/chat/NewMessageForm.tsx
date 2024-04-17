@@ -1,72 +1,33 @@
-import { useState } from 'react'
-type Message = {
-    id: string
-    content: string
-    senderName: string
-    senderId: string
-    chatId: string
-    timestamp: string // Format ISO pour la date et l'heure du message
+import React, { useState } from 'react';
+import useWebSocket from '@/hooks/useWebSocket'; // Assurez-vous que le chemin d'accès est correct
+
+interface NewMessageProps {
+  senderName: string;
+  chatId: string; // Vous devez passer chatId comme prop pour savoir à quel groupe le message est destiné
 }
 
-type newMessageProps = {
-    senderName: string
-}
+const NewMessageForm: React.FC<NewMessageProps> = ({ senderName, chatId }) => {
+  const [message, setMessage] = useState('');
+  const { sendMessage } = useWebSocket(); // Utiliser le hook pour envoyer des messages
+  const userId = localStorage.getItem('userId') || 'defaultUserId'; // Assurez-vous d'avoir un ID d'utilisateur valide
 
-
-const NewMessageForm: React.FC<newMessageProps> = ({ senderName }) => {
-    const [message, setMessage] = useState('')
-    const [currentChatId, setCurrentChatId] = useState('')
-
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault()
-
-        setCurrentChatId(localStorage.getItem('currentChat')!)
-
-        // Récupérer le chat actuel
-        const chatResponse = await fetch(
-            `http://localhost:3000/Chats/${currentChatId}`
-        )
-        const chat = await chatResponse.json()
-        console.log(chat) // Ajoute ceci pour inspecter l'objet chat
-
-        if (!chat.messages) {
-            chat.messages = [] // Initialiser le tableau de messages si ce n'est pas déjà fait
-        }
-
-        // Créer un nouveau message
-        const newMessage: Message = {
-            id: Date.now().toString(),
-            content: message,
-            senderName: senderName,
-            senderId: localStorage.getItem('user_id')!,
-            chatId: currentChatId,
-            timestamp: new Date().toISOString(),
-        }
-
-        // Ajouter le nouveau message au chat
-        chat.messages.push(newMessage)
-
-        // Mettre à jour le chat avec les nouveaux messages
-        const updateResponse = await fetch(
-            `http://localhost:3000/Chats/${currentChatId}`,
-            {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(chat),
-            }
-        )
-
-        if (updateResponse.ok) {
-            setMessage('')
-            // Optionnellement, rafraîchir les messages affichés
-        }
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (message) {
+      // Utilisez la méthode sendMessage de votre hook
+      sendMessage({
+        sender: userId,
+        content: message,
+        groupID: chatId,
+      });
+      setMessage(''); // Réinitialiser le message après l'envoi
     }
+  };
 
-    const openEmojiPicker = () => {
-        console.log('openEmojiPicker')
-    }
+  const openEmojiPicker = () => {
+    console.log('openEmojiPicker');
+  };
+
 
     return (
         <div className="w-full">

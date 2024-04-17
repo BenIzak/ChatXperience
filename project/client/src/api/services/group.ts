@@ -22,11 +22,8 @@ export async function createGroup(data : CreateGroupRequest) {
         }
         return await response.json();
     } catch (error) {
-        if (error instanceof Error) {
-            return { success: false, message: error.message }
-        } else {
-            return { success: false, message: 'An unknown error occurred' }
-        }
+        console.error("Failed to fetch user details:", error);
+        throw error;
     }
 }
 
@@ -67,15 +64,21 @@ export async function updateGroup(request: UpdateGroupRequest) {
 }
 
 export async function getGroupsByUserId(userId: string) {
+    const token = localStorage.getItem('token')
+
     try {
-        const response = await fetch(`${baseURL}/groups/user/${userId}`)
+        const response = await fetch(`${baseURL}/user/${userId}/groups`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+    
         const data = await response.json()
         return data
     } catch (error) {
-        if (error instanceof Error) {
-            return { success: false, message: error.message }
-        } else {
-            return { success: false, message: 'An unknown error occurred' }
-        }
+        console.error("Failed to fetch user details:", error);
+        throw error;
     }
 }

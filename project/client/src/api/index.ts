@@ -49,6 +49,7 @@ export interface CreateGroupRequest {
     creator_id: number
     Name: string
     public: boolean
+    participantIDs: number[]
     description?: string
 }
 
@@ -80,7 +81,7 @@ export interface SendMessageRequest {
 }
 
 export interface GetMessagesByGroupIdRequest {
-    group_id: number
+    groupID: number
 }
 
 export interface DeleteMessageRequest {
