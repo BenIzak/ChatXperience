@@ -51,23 +51,23 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 
 	handlers.Post("/user", myhttp.CreateUserEndpoint(db))
 	handlers.Post("/login", myhttp.LoginEndpoint(db))
-	handlers.Get("/user/{userID:[0-9+]}", myhttp.GetUserByIDEndpoint(db))
+	handlers.Get("/user/{userID:[0-9]+}", myhttp.GetUserByIDEndpoint(db))
 	handlers.Get("/users", myhttp.GetAllUsersEndpoint(db))
-	handlers.Delete("/user/{userID:[0-9+]}", myhttp.DeleteUserByIDEndpoint(db))
-	handlers.Patch("/user/{userID:[0-9+]}", myhttp.UpdateUserByIDEndpoint(db))
+	handlers.Delete("/user/{userID:[0-9]+}", myhttp.DeleteUserByIDEndpoint(db))
+	handlers.Patch("/user/{userID:[0-9]+}", myhttp.UpdateUserByIDEndpoint(db))
 
 	handlers.Post("/group", myhttp.CreateGroupEndpoint(db))
 	handlers.Get("/user/{userID:[0-9]+}/groups", myhttp.GetGroupsByUserIDEndpoint(db))
-	handlers.Get("/group/{groupID:[0-9+]}", myhttp.GetGroupByIDEndpoint(db))
-	handlers.Patch("/group/{groupID:[0-9+]}", myhttp.UpdateGroupByIDEndpoint(db))
-	handlers.Delete("/group/{groupID:[0-9+]}", myhttp.DeleteGroupByIDEndpoint(db))
+	handlers.Get("/group/{groupID:[0-9]+}", myhttp.GetGroupByIDEndpoint(db))
+	handlers.Patch("/group/{groupID:[0-9]+}", myhttp.UpdateGroupByIDEndpoint(db))
+	handlers.Delete("/group/{groupID:[0-9]+}", myhttp.DeleteGroupByIDEndpoint(db))
 
 	handlers.Post("/usersgroup/add", myhttp.AddUsersGroupEndpoint(db))
 	handlers.Delete("/usersgroup/remove", myhttp.RemoveUsersGroupEndpoint(db))
-	handlers.Get("/usersgroup/{groupID:[0-9+]}", myhttp.GetUsersByGroupIDEndpoint(db))
+	handlers.Get("/usersgroup/{groupID:[0-9]+}", myhttp.GetUsersByGroupIDEndpoint(db))
 
 	handlers.Post("/message", myhttp.CreateMessageEndpoint(db))
-	handlers.Get("/messages/{groupID:[0-9+]}", myhttp.GetMessagesByGroupIDEndpoint(db))
+	handlers.Get("/messages/{groupID:[0-9]+}", myhttp.GetMessagesByGroupIDEndpoint(db))
 	handlers.Delete("/message", myhttp.DeleteMessageByIDEndpoint(db))
 
 	// Dans votre fonction NewHandler, ajoutez ceci pour gérer la connexion WebSocket initiale
