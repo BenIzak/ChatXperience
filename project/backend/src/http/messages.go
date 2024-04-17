@@ -51,11 +51,11 @@ func CreateMessageEndpoint(db *sql.DB) http.HandlerFunc {
 
 func GetMessagesByGroupIDEndpoint(db *sql.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// _, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
-		// if err != nil {
-		// 	http.Error(w, "Invalid token", http.StatusUnauthorized)
-		// 	return
-		// }
+		_, err := token.ValidateTokenAndGetUserID(r.Header.Get("Authorization"))
+		if err != nil {
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
+			return
+		}
 		groupIDString := chi.URLParam(r, "groupID")
 
 		groupID, err := strconv.Atoi(groupIDString)

@@ -36,6 +36,7 @@ func GetMessagesByGroupID(db *sql.DB, groupID int) ([]*messageData, error) {
 		return nil, nil
 	}
 	if err != nil {
+		log.Printf("error while getting the messages")
 		return nil, err
 	}
 	defer rows.Close()
@@ -46,23 +47,26 @@ func GetMessagesByGroupID(db *sql.DB, groupID int) ([]*messageData, error) {
 		var createdAt, updated_at []uint8
 		err := rows.Scan(&message.Message.ID, &message.Message.UserID, &message.Message.GroupID, &message.Message.Content, &createdAt, &updated_at)
 		if err != nil {
+			log.Printf("error while scanning")
 			return nil, err
 		}
 
 		createdAtString := string(createdAt)
 		message.Message.CreatedAt, err = time.Parse("2006-01-02 15:04:05", createdAtString)
 		if err != nil {
+			log.Printf("error while parsing")
 			log.Fatal(err)
 		}
 
 		updatedAtString := string(updated_at)
 		message.Message.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", updatedAtString)
 		if err != nil {
+			log.Printf("error while parsing")
 			log.Fatal(err)
 		}
 
 		message.User, err = user.GetUserByID(db, message.Message.UserID)
-		log.Println(message)
+
 		messages = append(messages, message)
 	}
 	return messages, nil
