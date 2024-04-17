@@ -4,13 +4,11 @@ import ChatList from '@/components/chat/ChatList';
 import { setUser } from '@/redux/slices/userSlice';
 import { useDispatch } from 'react-redux';
 import { User } from '@/api';
-import useWebSocket from '@/hooks/useWebSocket';
 
 export default function ChatPage() {
     const dispatch = useDispatch();
     const userId = Number(localStorage.getItem('userId'));
 
-    useWebSocket();
 
     const { data, isSuccess } = useQuery({
         queryKey: ['userDetails'],

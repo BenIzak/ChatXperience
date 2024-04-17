@@ -67,7 +67,7 @@ func NewHandler(db *sql.DB, ref entity.Reference) http.Handler {
 	handlers.Get("/usersgroup/{groupID:[0-9+]}", myhttp.GetUsersByGroupIDEndpoint(db))
 
 	handlers.Post("/message", myhttp.CreateMessageEndpoint(db))
-	handlers.Get("/messages/{groupID:[0-9+]}", myhttp.GetMessagesByGroupIDEndpoint(db))
+	handlers.Get("/messages/{groupID:[0-9]+}", myhttp.GetMessagesByGroupIDEndpoint(db))
 	handlers.Delete("/message", myhttp.DeleteMessageByIDEndpoint(db))
 
 	// Dans votre fonction NewHandler, ajoutez ceci pour gérer la connexion WebSocket initiale
